@@ -61,7 +61,7 @@ def load_data(root="../../semantic-tagging/dataset"):
 
 
 
-@tf.function
+#@tf.function
 def adam_stage2_train_step(wave, labels):
     with tf.GradientTape() as tape:
 
@@ -77,7 +77,7 @@ def adam_stage2_train_step(wave, labels):
     train_auc(labels, predictions)
 
 
-@tf.function
+#@tf.function
 def sgd_stage2_train_step(wave, labels):
     with tf.GradientTape() as tape:
 
@@ -94,7 +94,7 @@ def sgd_stage2_train_step(wave, labels):
 
 
 
-@tf.function
+#@tf.function
 def stage2_test_step(wave, labels):
     predictions = model(wave, training=False)
 
