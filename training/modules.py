@@ -31,6 +31,7 @@ def initialize_filterbank(sample_rate, n_harmonic, semitone_scale):
     # number of scales
     level = (high_midi - low_midi) * semitone_scale
     midi = np.linspace(low_midi, high_midi, level + 1)
+    #midi = tf.cast(midi, tf.float32)
     hz = midi_to_hz(midi[:-1])
 
     # stack harmonics
@@ -64,7 +65,7 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         self.win_length=win_length
         self.hop_length=hop_length
         self.n_fft = n_fft
-        self.fft_bins = tf.linspace(0, self.sample_rate//2, self.n_fft//2 + 1)
+        self.fft_bins = tf.linspace(0, tf.cast(self.sample_rate//2, tf.float32), self.n_fft//2 + 1)
 
         self.stft = STFT(n_fft = self.n_fft, win_length=self.win_length, hop_length = self.hop_length, window_name='hann_window',  input_shape=(80000,1))
         self.magnitude = Magnitude()
