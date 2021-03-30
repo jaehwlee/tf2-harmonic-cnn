@@ -4,8 +4,8 @@ import datetime
 import os
 from tqdm import tqdm
 import tensorflow as tf
-from data_loader.original_train_loader import TrainLoader
-from data_loader.original_mtat_loader import DataLoader
+from data_loader.train_loader import TrainLoader
+from data_loader.mtat_loader import DataLoader
 from model import Model
 
 # select GPU
@@ -113,7 +113,7 @@ def stage2_train_adam(epochs):
         )
         print(stage2_log)
 
-    if (epoch % 10 == 0 and epoch!=0) or epoch==99:
+    if (epoch % 19 == 0 and epoch!=0):
         for valid_wave, valid_labels in tqdm(valid_ds):
             stage2_test_step(valid_wave, valid_labels)
         valid_log = valid_template.format(epoch+1, valid_loss.result(), valid_auc.result()*100)
@@ -129,7 +129,7 @@ def stage2_train_sgd(epochs):
             epoch + 1, train_loss.result(), train_auc.result()*100
         )
         print(stage2_log)
-    if (epoch % 10 == 0 and epoch!=0) or epoch == 99:
+    if (epoch % 19 == 0 and epoch!=0):
         for valid_wave, valid_labels in tqdm(valid_ds):
             stage2_test_step(valid_wave, valid_labels)
         valid_log = valid_template.format(epoch+1, valid_loss.result(), valid_auc.result()*100)
