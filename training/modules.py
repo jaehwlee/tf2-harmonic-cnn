@@ -65,8 +65,8 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         self.win_length=win_length
         self.hop_length=hop_length
         self.n_fft = n_fft
-        self.fft_bins = tf.linspace(0, tf.cast(self.sample_rate//2, tf.float32), self.n_fft//2 + 1)
-
+        #self.fft_bins = tf.linspace(0, tf.cast(self.sample_rate//2, tf.int32), self.n_fft//2 + 1)
+        self.fft_bins = tf.linspace(0, self.sample_rate//2, self.n_fft//2+1)
         self.stft = STFT(n_fft = self.n_fft, win_length=self.win_length, hop_length = self.hop_length, window_name='hann_window',  input_shape=(80000,1))
         self.magnitude = Magnitude()
         self.to_decibel = MagnitudeToDecibel()
@@ -115,8 +115,11 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         return log_spec
 
     def call(self, input_tensor):
+        print(tf.shape(input_tensor))
         waveform = tf.keras.layers.Reshape((-1, 1))(input_tensor)
+        print(tf.shape(waveform))
         spec = self.stft(waveform)
+        print(tf.shape(spec))
         spec = self.magnitude(spec)
         #spec = power_to_db(spec)
         harmonic_fb = self.get_harmonic_fb()
@@ -124,8 +127,13 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         harmonic_fb = tf.stack([harmonic_fb, harmonic_fb, harmonic_fb, harmonic_fb, harmonic_fb, harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb,harmonic_fb])
         #harmonic_fb = tf.dtypes.cast(harmonic_fb, dtype=tf.float32)
         harmonic_spec = tf.matmul(tf.transpose(spec, perm=[0,3, 1, 2]), harmonic_fb)
+        print(tf.shape(harmonic_spec))
         b, c, w, h = harmonic_spec.shape
-        harmomic_spec = tf.keras.layers.Reshape((b, w, h//self.n_harmonic, self.n_harmonic))
+        print(b, c, w, h)
+        print(h//self.n_harmonic)
+        print(self.n_harmonic)
+        harmonic_spec = tf.keras.layers.Reshape((-1, h//self.n_harmonic, self.n_harmonic))(harmonic_spec)
+        print(tf.shape(harmonic_spec))
         harmonic_spec = self.to_decibel(harmonic_spec)
         return harmonic_spec
 
