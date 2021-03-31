@@ -65,9 +65,10 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         self.win_length=win_length
         self.hop_length=hop_length
         self.n_fft = n_fft
-        self.fft_bins = tf.linspace(0, tf.cast(self.sample_rate//2, tf.float32), self.n_fft//2 + 1)
-
-        self.stft = STFT(n_fft = self.n_fft, win_length=self.win_length, hop_length = self.hop_length, window_name='hann_window',  input_shape=(80000,1))
+        #self.fft_bins = tf.linspace(0, tf.cast(self.sample_rate//2, tf.int32), self.n_fft//2 + 1)
+        self.fft_bins = tf.linspace(0, self.sample_rate//2, self.n_fft//2+1)
+        #self.stft = STFT(n_fft = self.n_fft, win_length=self.win_length, hop_length = self.hop_length, window_name='hann_window',  input_shape=(80000,1))
+        self.stft = STFT(n_fft=self.n_fft, win_length=self.win_length, hop_length=254, window_name='hann_window', input_shape=(80000,1))
         self.magnitude = Magnitude()
         self.to_decibel = MagnitudeToDecibel()
         self.zero = tf.zeros([1,])
@@ -115,6 +116,7 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         return log_spec
 
     def call(self, input_tensor):
+        print(tf.shape(input_tensor))
         waveform = tf.keras.layers.Reshape((-1, 1))(input_tensor)
         spec = self.stft(waveform)
         spec = self.magnitude(spec)
@@ -125,7 +127,7 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         #harmonic_fb = tf.dtypes.cast(harmonic_fb, dtype=tf.float32)
         harmonic_spec = tf.matmul(tf.transpose(spec, perm=[0,3, 1, 2]), harmonic_fb)
         b, c, w, h = harmonic_spec.shape
-        harmomic_spec = tf.keras.layers.Reshape((b, w, h//self.n_harmonic, self.n_harmonic))
+        harmonic_spec = tf.keras.layers.Reshape((-1, h//self.n_harmonic, self.n_harmonic))(harmonic_spec)
         harmonic_spec = self.to_decibel(harmonic_spec)
         return harmonic_spec
 
