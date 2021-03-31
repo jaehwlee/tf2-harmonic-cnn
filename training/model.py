@@ -26,11 +26,11 @@ class Model(tf.keras.Model):
             from modules import ResNet_mtat as ResNet
         self.conv_2d = ResNet(input_channels=n_harmonic, conv_channels=conv_channels)
 
-    def call(self, x):
+    def call(self, x, training=False):
         # harmonic stft
-        x = self.hstft_bn(self.hstft(x))
+        x = self.hstft_bn(self.hstft(x, training=training), training=training)
 
         # 2D CNN
-        logits = self.conv_2d(x)
+        logits = self.conv_2d(x, training=training)
 
         return logits

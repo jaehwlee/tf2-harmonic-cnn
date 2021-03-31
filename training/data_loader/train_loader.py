@@ -22,7 +22,7 @@ class TrainLoader(Sequence):
         for i in range(self.batch_size):
             file_index = idx * self.batch_size + i
             if file_index >= 15247:
-                npy_list.append(np.zeros((input_length,)))
+                npy_list.append(np.zeros((self.input_length,)))
                 tag_list.append(np.zeros((50,)))
                 continue
 

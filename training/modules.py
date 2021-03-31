@@ -115,8 +115,7 @@ class HarmonicSTFT(tf.keras.layers.Layer):
 
         return log_spec
 
-    def call(self, input_tensor):
-        print(tf.shape(input_tensor))
+    def call(self, input_tensor, training=False):
         waveform = tf.keras.layers.Reshape((-1, 1))(input_tensor)
         spec = self.stft(waveform)
         spec = self.magnitude(spec)
@@ -128,6 +127,7 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         harmonic_spec = tf.matmul(tf.transpose(spec, perm=[0,3, 1, 2]), harmonic_fb)
         b, c, w, h = harmonic_spec.shape
         harmonic_spec = tf.keras.layers.Reshape((-1, h//self.n_harmonic, self.n_harmonic))(harmonic_spec)
+        harmonic_spec = tf.transpose(harmonic_spec, perm=[0, 2, 1, 3])
         harmonic_spec = self.to_decibel(harmonic_spec)
         return harmonic_spec
 
@@ -157,26 +157,26 @@ class ResNet_mtat(tf.keras.layers.Layer):
         self.relu = tf.keras.layers.Activation('relu')
         self.gmp = tf.keras.layers.GlobalMaxPooling2D()
 
-    def call(self, x):
+    def call(self, x, training=False):
         # residual convolution
-        x = self.res1(x)
-        x = self.res2(x)
-        x = self.res3(x)
-        x = self.res4(x)
-        x = self.res5(x)
-        x = self.res6(x)
-        x = self.res7(x)
+        x = self.res1(x, training=training)
+        x = self.res2(x, training=training)
+        x = self.res3(x, training=training)
+        x = self.res4(x, training=training)
+        x = self.res5(x, training=training)
+        x = self.res6(x, training=training)
+        x = self.res7(x, training=training)
 
         # global max pooling
         x = self.gmp(x)
 
         # fully connected
-        x = self.fc_1(x)
-        x = self.bn(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-        x = self.fc_2(x)
-        x = self.activation(x)
+        x = self.fc_1(x, training=training)
+        x = self.bn(x, training=training)
+        x = self.relu(x, training=training)
+        x = self.dropout(x, training=training)
+        x = self.fc_2(x, training=training)
+        x = self.activation(x, training=training)
         return x
 
 
@@ -185,27 +185,27 @@ class ResNet_mtat(tf.keras.layers.Layer):
 class Conv3_2d(tf.keras.layers.Layer):
     def __init__(self, output_channels, pooling=2):
         super(Conv3_2d, self).__init__()
-        self.conv = tf.keras.layers.Conv2D(output_channels, 3, padding='same')
+        self.conv = tf.keras.layers.Conv2D(output_channels, kernel_size=(3,3) , padding='same')
         self.bn = tf.keras.layers.BatchNormalization()
         self.relu = tf.keras.layers.Activation('relu')
-        self.mp = tf.keras.layers.MaxPooling2D(pooling)
-    def forward(self, x):
-        out = self.mp(self.relu(self.bn(self.conv(x))))
+        self.mp = tf.keras.layers.MaxPooling2D((pooling))
+    def call(self, x, training=False):
+        out = self.mp(self.relu(self.bn(self.conv(x, training=training), training=training)), training=training)
         return out
 
 
 class Conv3_2d_resmp(tf.keras.layers.Layer):
     def __init__(self, output_channels, pooling=2):
         super(Conv3_2d_resmp, self).__init__()
-        self.conv_1 = tf.keras.layers.Conv2D(output_channels, 3, padding='same')
+        self.conv_1 = tf.keras.layers.Conv2D(output_channels, kernel_size=(3,3), padding='same')
         self.bn_1 = tf.keras.layers.BatchNormalization()
-        self.conv_2 = tf.keras.layers.Conv2D(output_channels, 3, padding='same')
+        self.conv_2 = tf.keras.layers.Conv2D(output_channels, kernel_size=(3,3), padding='same')
         self.bn_2 = tf.keras.layers.BatchNormalization()
         self.relu = tf.keras.layers.Activation('relu')
-        self.mp = tf.keras.layers.MaxPooling2D(pooling)
-    def forward(self, x):
-        out = self.bn_2(self.conv_2(self.relu(self.bn_1(self.conv_1(x)))))
+        self.mp = tf.keras.layers.MaxPooling2D((pooling))
+    def call(self, x, training=False):
+        out = self.bn_2(self.conv_2(self.relu(self.bn_1(self.conv_1(x, training=training), training=training)), training=training), training=training)
         out = x + out
-        out = self.mp(self.relu(out))
+        out = self.mp(self.relu(out), training=training)
         return out
 
