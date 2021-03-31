@@ -16,22 +16,37 @@ Reference
 
 Prerequisited
 --
-* Tensorflow (>=2.4) 
-* Kapre : <code> pip install kapre</code> [for more information](https://github.com/keunwoochoi/kapre)
+* Tensorflow (>=2.2) 
+* Kapre : <code> pip install kapre</code> ,[for more information](https://github.com/keunwoochoi/kapre)
 
 Usage
 --
+* Requirements
+<pre>
+<code>
+$ conda env create -n {ENV_NAME} --file environment.yaml
+$ conda activate {ENV_NAME}
+</code>
+</pre>
+
+
 * Preprocessing
 <pre>
 <code>
-python -u preprocess.py run ../dataset
-python -u split.py run ../dataset
+$ python -u preprocess.py run ../dataset
+$ python -u split.py run ../dataset
 </code>
 </pre>
 
 * Training
 <pre>
 <code>
-python train.py
+$ python train.py
 </code>
 </pre>
+
+
+Author
+--
+* Jaehwan Lee @jaehwlee
+* jaehwlee@gmail.com
