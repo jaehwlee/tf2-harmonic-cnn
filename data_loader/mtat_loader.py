@@ -3,6 +3,8 @@ import math
 from tensorflow.keras.utils import Sequence
 import os
 
+np.random.seed(42)
+
 
 class DataLoader(Sequence):
     def __init__(self, root, split, batch_size=16, input_length=80000, shuffle=False):
@@ -22,8 +24,8 @@ class DataLoader(Sequence):
         ix, fn = self.fl[idx].split("\t")
         npy_path = os.path.join(self.root, "mtat", "npy", fn.split("/")[1][:-3]) + "npy"
         npy = np.load(npy_path)
-        #scaler = max(max(npy), np.abs(min(npy)))
-        #npy /= scaler
+        # scaler = max(max(npy), np.abs(min(npy)))
+        # npy /= scaler
         hop = (len(npy) - self.input_length) // self.batch_size
 
         for i in range(self.batch_size):
