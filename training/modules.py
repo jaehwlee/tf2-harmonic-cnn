@@ -118,7 +118,10 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         # Center frequncies to tensor
         self.f0 = tf.constant(harmonic_hz, dtype="float32")
         # Bandwidth parameters
-        self.bw_Q = tf.Variable(np.array([bw_Q]), dtype="float32", trainable=True)
+        if learn_bw == 'only_Q':
+            self.bw_Q = tf.Variable(np.array([bw_Q]), dtype="float32", trainable=True)
+        elif learn_bw == 'fix':
+            self.bw_Q = tf.constant(np.array([bw_Q]), dtype="float32")
 
     def get_harmonic_fb(self):
         # bandwidth
