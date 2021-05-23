@@ -7,7 +7,7 @@ from model import HarmonicCNN
 import tensorflow as tf
 from data_loader.train_loader import TrainLoader
 from data_loader.mtat_loader import DataLoader
-
+import tensorflow_addons as tfa
 # fix random seed
 SEED = 42
 tf.random.set_seed(SEED)
@@ -17,7 +17,7 @@ class Solver(object):
     def __init__(self, config):
         self.input_length = config.input_length
 
-        self.conv_channels = config.conv_chaannels
+        self.conv_channels = config.conv_channels
         self.sample_rate = config.sample_rate
         self.n_fft = config.n_fft
         self.n_harmonic = config.n_harmonic
@@ -29,7 +29,8 @@ class Solver(object):
         self.log_step = config.log_step
 
         self.batch_size = config.batch_size
-
+        
+        self.testoptimizer = config.testoptimizer
         os.environ["CUDA_VISIBLE_DEVICES"] = config.gpu
         self.data_path = config.data_path
         self.model_save_path = config.model_save_path
@@ -47,9 +48,9 @@ class Solver(object):
 
     def get_data(
         self,
-        root=self.data_path,
-        batch_size=self.batch_size,
-        input_legnth=self.input_length,
+        root="./../../jetatag/dataset",
+        batch_size=16,
+        input_legnth=80000,
     ):
         train_data = TrainLoader(root=root, split="train")
         valid_data = DataLoader(root=root, split="valid")
@@ -58,7 +59,7 @@ class Solver(object):
 
     def get_model(self):
         self.model = HarmonicCNN(
-            conv_channels=self.conv_chaannels,
+            conv_channels=self.conv_channels,
             sample_rate=self.sample_rate,
             n_fft=self.n_fft,
             n_harmonic=self.n_harmonic,
@@ -67,7 +68,7 @@ class Solver(object):
         )
 
     def get_optimizer(self):
-        self.adam = tf.keras.optimizers.Adam(learning_rate=self.lr)
+        self.adam = tf.keras.optimizers.Adam(learning_rate=self.lr, epsilon=1e-08)
         self.sgd = tf.keras.optimizers.SGD(
             learning_rate=0.001, momentum=0.9, nesterov=True
         )

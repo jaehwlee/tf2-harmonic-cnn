@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_save_path", type=str, default="./../saved_models")
     parser.add_argument("--gpu", type=str, default="0")
     parser.add_argument(
-        "--data_path", type=str, default="./../../tf2-harmonic-cnn/dataset"
+        "--data_path", type=str, default="./../../jetatag/dataset"
     )
     config = parser.parse_args()
 

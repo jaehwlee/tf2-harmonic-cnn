@@ -97,6 +97,8 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         self.hop_length = hop_length
         self.n_fft = n_fft
         self.fft_bins = tf.linspace(0, self.sample_rate // 2, self.n_fft // 2 + 1)
+        
+        # Spectrogram
         self.stft = STFT(
             n_fft=self.n_fft,
             win_length=self.win_length,
@@ -108,7 +110,6 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         self.magnitude = Magnitude()
         self.to_decibel = MagnitudeToDecibel()
         self.zero = tf.zeros([1,])
-        # Spectrogram
 
         # Initialize the filterbank. Equally spaced in MIDI scale.
         harmonic_hz, self.level = initialize_filterbank(
@@ -117,6 +118,7 @@ class HarmonicSTFT(tf.keras.layers.Layer):
 
         # Center frequncies to tensor
         self.f0 = tf.constant(harmonic_hz, dtype="float32")
+        
         # Bandwidth parameters
         if learn_bw == 'only_Q':
             self.bw_Q = tf.Variable(np.array([bw_Q]), dtype="float32", trainable=True)
