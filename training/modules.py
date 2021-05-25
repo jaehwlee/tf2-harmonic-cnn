@@ -102,7 +102,7 @@ class HarmonicSTFT(tf.keras.layers.Layer):
         self.stft = STFT(
             n_fft=self.n_fft,
             win_length=self.win_length,
-            hop_length=256,
+            hop_length=n_fft//2,
             window_name="hann_window",
             input_shape=(80000, 1),
             pad_begin=True,
